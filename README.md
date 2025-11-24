@@ -1,7 +1,6 @@
 # Multi-Agent Coding Framework
 
-A Streamlit application powered by AutoGen for multi-agent AI coding collaboration.
-
+Multi-Agent Coding Framework is an AI-powered software development system that uses 7 specialized AI agents working collaboratively to transform natural language requirements into fully functional python applications.
 
 ### Quick Start Guide For Windows
 
