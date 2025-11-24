@@ -123,7 +123,7 @@ CRITICAL OUTPUT FORMAT - YOU MUST FOLLOW THIS EXACTLY:
 
 Respond with ONLY this structure (no extra text):
 
-===BEGIN_FILE:requirements.md===
+===BEGIN_FILE:requirements.txt===
 # Software Requirements Document
 
 ## 1. Project Overview
@@ -155,7 +155,7 @@ FR3. Continue with all features...
 ===END_FILE===
 
 REQUIREMENTS:
-- Start with ===BEGIN_FILE:requirements.md===
+- Start with ===BEGIN_FILE:requirements.txt===
 - End with ===END_FILE===
 - Write detailed, specific requirements based on user's actual request
 - Each functional requirement should be concrete and testable
@@ -394,8 +394,8 @@ package-name>=version  # Purpose: explain what it does
 
 ### Step 2: Install Dependencies
 ```bash
-# If there are external dependencies, install them
-# pip install package-name
+# If there are dependencies
+pip install -r requirements.txt
 ```
 
 ### Step 3: Configuration
@@ -424,7 +424,7 @@ If the application has interactive features, explain how to use them step by ste
 project/
 ├── main.py              # Main application file - entry point
 ├── test_main.py         # Unit tests for the application
-├── requirements.md      # Software requirements document
+├── requirements.txt     # Software requirements document
 ├── README.md           # This documentation file
 ├── Dockerfile          # Docker configuration
 └── run.sh              # Helper script to run the application
