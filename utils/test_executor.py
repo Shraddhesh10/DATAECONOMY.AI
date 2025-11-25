@@ -289,8 +289,13 @@ class TestExecutor:
             
             # Aggregate counts
             total_tests += result['tests_run']
-            if result['status'] == 'passed':
-                total_passed += result['tests_run']
+            
+            # Calculate passed tests correctly regardless of file status
+            # passed = run - failed - errors
+            passed_in_file = result['tests_run'] - result['failures'] - result['errors']
+            if passed_in_file < 0: passed_in_file = 0
+            
+            total_passed += passed_in_file
             total_failed += result['failures']
             total_errors += result['errors']
         
@@ -324,5 +329,7 @@ def run_tests_in_workspace(workspace_path: str) -> Dict[str, Any]:
     """
     executor = TestExecutor(workspace_path)
     return executor.execute_all_tests()
+
+
 
 

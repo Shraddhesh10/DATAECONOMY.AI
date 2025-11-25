@@ -1,8 +1,3 @@
-"""
-Agent Definitions for AutoGenDevTeam
-Defines 7 specialized AI agents and 1 User Proxy for collaborative software development.
-"""
-
 import os
 from typing import Dict, Any, Optional
 from autogen import AssistantAgent, UserProxyAgent
@@ -123,7 +118,7 @@ CRITICAL OUTPUT FORMAT - YOU MUST FOLLOW THIS EXACTLY:
 
 Respond with ONLY this structure (no extra text):
 
-===BEGIN_FILE:requirements.txt===
+===BEGIN_FILE:requirements.md===
 # Software Requirements Document
 
 ## 1. Project Overview
@@ -155,7 +150,7 @@ FR3. Continue with all features...
 ===END_FILE===
 
 REQUIREMENTS:
-- Start with ===BEGIN_FILE:requirements.txt===
+- Start with ===BEGIN_FILE:requirements.md===
 - End with ===END_FILE===
 - Write detailed, specific requirements based on user's actual request
 - Each functional requirement should be concrete and testable
@@ -175,6 +170,7 @@ WHAT YOU MUST DO:
 3. Include all necessary imports, functions, classes, and logic
 4. Add proper error handling and docstrings
 5. Make it executable and production-ready
+6. **CRITICAL: Use ONLY built-in Python libraries (os, sys, json, datetime, base64, etc.). DO NOT use external packages like cryptography, requests, pandas, etc.**
 
 CRITICAL OUTPUT FORMAT - YOU MUST FOLLOW THIS EXACTLY:
 
@@ -261,6 +257,7 @@ Your responsibilities:
    - PEP 8 compliance and code style
    - Missing error handling
    - Poor variable naming or lack of documentation
+   - **CRITICAL: External dependencies - Code MUST use ONLY built-in Python libraries (os, sys, json, datetime, base64, etc.). Reject code that imports external packages like cryptography, requests, pandas, numpy, etc.**
 
 Review process:
 - Read all submitted code carefully
@@ -424,7 +421,7 @@ If the application has interactive features, explain how to use them step by ste
 project/
 ├── main.py              # Main application file - entry point
 ├── test_main.py         # Unit tests for the application
-├── requirements.txt     # Software requirements document
+├── requirements.md      # Software requirements document
 ├── README.md           # This documentation file
 ├── Dockerfile          # Docker configuration
 └── run.sh              # Helper script to run the application
@@ -616,6 +613,14 @@ WHAT YOU MUST DO:
 4. Include edge cases and error handling tests
 5. Use proper unittest assertions
 6. ALWAYS generate the complete test file - NEVER leave it empty
+7. **CRITICAL: Use ONLY built-in Python libraries (unittest, unittest.mock, io, sys, etc.). DO NOT import external testing frameworks.**
+8. **CRITICAL FOR INTERACTIVE APPS: If the app uses `input()`, you MUST mock it using `unittest.mock.patch('builtins.input', side_effect=[...])` or `return_value`. Tests will TIMEOUT if you don't mock input!**
+9. **CRITICAL FOR FILE OPERATIONS: If the app reads/writes files:**
+   - Use a temporary file name (e.g., `test_data.json`) or `tempfile` module.
+   - patch the file path variable in the app if possible.
+   - In `tearDown`, check if the file exists before removing it: `if os.path.exists(f): os.remove(f)`.
+   - **WINDOWS WARNING:** Do NOT try to rename/delete files that might be open. Ensure strict cleanup logic.
+10. **CRITICAL FOR PRINT OUTPUTS:** If functions print to stdout instead of returning values, mock stdout: `with patch('sys.stdout', new=io.StringIO()) as fake_out:` and assert on `fake_out.getvalue()`.
 
 WHAT YOU MUST NOT DO:
 - DO NOT generate an empty response
@@ -632,22 +637,49 @@ Respond with ONLY this structure (no extra text):
 # Unit tests for main.py application
 
 import unittest
+import os
+import io
+import sys
+from unittest.mock import patch, MagicMock
 import main
 
 class TestMain(unittest.TestCase):
     # Test cases for the main application
     
+    def setUp(self):
+        # Setup temporary files or resources
+        self.test_file = "test_data.json"
+        # Example: Patch a global file variable if it exists
+        # self.patcher = patch('main.DATA_FILE', self.test_file)
+        # self.patcher.start()
+        
+        # Clean start
+        if os.path.exists(self.test_file):
+            os.remove(self.test_file)
+
+    def tearDown(self):
+        # Stop patches
+        # if hasattr(self, 'patcher'):
+        #     self.patcher.stop()
+            
+        # Clean up files - CHECK EXISTENCE FIRST (Windows safe)
+        if os.path.exists(self.test_file):
+            try:
+                os.remove(self.test_file)
+            except PermissionError:
+                pass # Ignore if file is locked
+    
     def test_basic_functionality(self):
         # Test basic functionality
-        # Write actual test code that calls real functions
         result = main.some_function()
         self.assertIsNotNone(result)
     
-    def test_edge_case_empty_input(self):
-        # Test with empty input
-        # Test edge cases
-        result = main.some_function("")
-        self.assertEqual(result, expected_value)
+    @patch('builtins.input', return_value='user input')
+    def test_interactive_feature(self, mock_input):
+        # Test function that asks for input
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            main.interactive_function()
+            self.assertIn("Expected Output", fake_out.getvalue())
     
     def test_error_handling(self):
         # Test error handling
@@ -655,7 +687,6 @@ class TestMain(unittest.TestCase):
             main.some_function(invalid_input)
     
     # Add 5-10 more test methods here
-    # Each test should test a specific aspect of the code
     
 if __name__ == "__main__":
     unittest.main()
@@ -665,12 +696,10 @@ REQUIREMENTS:
 - Start with ===BEGIN_FILE:test_main.py===
 - End with ===END_FILE===
 - Write REAL tests that call actual functions from main.py
-- Do NOT write placeholder tests like assertEqual(1, 1)
-- Do NOT write tests with only "pass" in them
-- Include at least 5-10 meaningful test methods
-- Test both normal cases and edge cases
-- Include error handling tests where appropriate
-- Make sure tests are runnable and would actually verify the code works""",
+- **MOCK INPUTS:** Prevent timeouts by mocking `input()`
+- **MOCK OUTPUTS:** Verify `print()` statements using `sys.stdout` capture
+- **SAFE FILES:** Use temporary files and safe cleanup (check exists) for file I/O tests
+- Include at least 5-10 meaningful test methods""",
         llm_config=base_config,
     )
     
@@ -683,6 +712,7 @@ WHAT YOU MUST DO:
 1. Create a Dockerfile for containerized deployment
 2. Create a run.sh script for easy local execution
 3. Ensure configurations are production-ready
+4. **IMPORTANT: Since the application uses only built-in Python libraries, the requirements.txt should be minimal or empty. Do NOT add external dependencies.**
 
 CRITICAL OUTPUT FORMAT - YOU MUST FOLLOW THIS EXACTLY:
 

@@ -193,7 +193,10 @@ def display_test_results():
     if status == 'passed':
         st.success(f"✅ **All Tests Passed!** ({total_tests}/{total_tests})")
     elif status == 'failed':
-        st.error(f"❌ **Some Tests Failed** ({total_passed}/{total_tests} passed)")
+        if total_passed > 0:
+            st.warning(f"⚠️ **Partial Success**: {total_passed}/{total_tests} tests passed ({total_failed + total_errors} failed)")
+        else:
+            st.error(f"❌ **All Tests Failed** ({total_tests} tests)")
     elif status == 'no_tests':
         st.warning("⚠️ **No Tests Found** - The QA Engineer may not have generated test files.")
         return
@@ -526,8 +529,6 @@ def main():
             **Simple Calculator:**
             > Create a calculator application that can perform basic arithmetic operations (add, subtract, multiply, divide). Include error handling for division by zero.
             
-            **Task Manager:**
-            > Build a command-line task management system where users can add, list, complete, and delete tasks. Tasks should be saved to a JSON file.
             """)
         
         # Initialize reset counter for forcing widget refresh
@@ -582,8 +583,15 @@ def main():
                         test_status_emoji = "✅"
                         test_status_text = f"All {test_results['total_tests']} tests passed"
                     elif test_results['status'] == 'failed':
-                        test_status_emoji = "❌"
-                        test_status_text = f"{test_results['total_failed'] + test_results['total_errors']} test(s) failed"
+                        passed_count = test_results.get('total_passed', 0)
+                        failed_count = test_results['total_failed'] + test_results['total_errors']
+                        
+                        if passed_count > 0:
+                            test_status_emoji = ""
+                            test_status_text = f"✅ {passed_count} passed, ❌ {failed_count} failed"
+                        else:
+                            test_status_emoji = "❌"
+                            test_status_text = f"All {failed_count} tests failed"
                     elif test_results['status'] == 'no_tests':
                         test_status_emoji = "⚠️"
                         test_status_text = "No tests found"
@@ -668,7 +676,7 @@ def main():
                 # Create progress display placeholder
                 progress_placeholder = st.empty()
                 
-                # Define agent messages (hardcoded)
+                # Define agent messages
                 agent_messages = {
                     "product_manager": {
                         "analyzing": "📊 Product Manager is analyzing your requirements..."
