@@ -1,7 +1,4 @@
-"""
-Orchestration Logic for AutoGenDevTeam
-Implements the State Transition Graph with custom speaker selection.
-"""
+
 
 from typing import Dict, Any, Optional, List
 from autogen import GroupChat, GroupChatManager, Agent

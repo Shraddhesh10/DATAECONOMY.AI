@@ -1,8 +1,3 @@
-"""
-AutoGen - Multi-Agent Coding Framework
-Main Streamlit Application Entry Point
-"""
-
 import os
 os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 
